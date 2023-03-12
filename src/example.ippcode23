@@ -1,4 +1,4 @@
-# .IPPcode23
+.IPPcode23
 # DEFVAR GF@counter
 # MOVE GF@counter string@ #Inicializace proměnné na prázdný řetězec
 # #Jednoduchá iterace , dokud nebude splněna zadaná podmínka
@@ -10,7 +10,3 @@
 # CONCAT GF@counter GF@counter string@a
 # JUMP while
 # LABEL end
-
-
-.IPPcode23
-DEFVAR    GF@a

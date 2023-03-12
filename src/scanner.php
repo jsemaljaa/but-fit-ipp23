@@ -62,10 +62,12 @@ function get_token(){
         // print_r($words);
 
         foreach ($words as $i => $word) {
-            // echo $word."\n";
             $word = rtrim($word);
+            $w = str_split($word);
+            if(sizeof($w) == 1 && $w[0] == 0) continue;
+            // echo $word."\n";
             if(preg_match("~@~", $word)){ // variable or constant (<symb>)
-                if(preg_match("~^(LF|TF|GF)@[a-zA-Z_\-$&%*][a-zA-Z0-9_\-$&%*]*$~", $word)){ // found a variable
+                if(preg_match("~^(GF|LF|TF)@[_a-zA-Z-$&%*!?][a-zA-Z-$&%*!?]*~", $word)){ // found a variable
                     array_push($result, array(tVar, $word));
                 } elseif(preg_match("~^(int|string|bool|nil)@~", $word)){ // found a constant
                     array_push($result, array(tConst, $word));
@@ -84,7 +86,9 @@ function get_token(){
                     array_push($result, array(tType, $word));
                 } 
                 else { // label or instruction
-                    $inst = get_instruction($word);
+                    // print($words[$i]." ");
+                    if($i == 0) $inst = get_instruction(strtoupper($word));
+                    else $inst = -1;
                     if($inst != -1){
                         array_push($result, array(tOpcode, $inst));
                     } else {
@@ -93,6 +97,7 @@ function get_token(){
                 }   
             }
         }
+        
         return $result;
     }
 }

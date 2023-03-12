@@ -2,20 +2,14 @@
 
 include 'scanner.php';
 
-// $input = STDIN;
 $input = fopen('php://stdin', 'r');
 
-# Program errors
-const eBadParameter = 10; # Error - bad parameter
-const eBadInput = 11;     # Error - bad source file
-const eBadOutput = 12;    # Error - bad output file
-const eInternal = 99;     # Error - internal
-const eOK = 0;            # No error - success
-
 # Parser errors
+const eParam = 10;        # Error - bad script parameter
 const eHeader = 21;       # Error - bad header
 const eOpcode = 22;       # Error - bad opcode
 const eOther = 23;        # Error - other lexical or syntax
+const eOK = 0;            # No error - success
 
 # Tokens
 const tHeader = 0;        # Token Header
@@ -27,7 +21,6 @@ const tType   = 5;        # Token Type
 const tEOF    = 6;        # Token End of file
 
 $cnt;                     # Instruction counter
-// $argcnt;                  # Argument counter
 $XMLcode;                 # XML code output
 
 $token = array();
@@ -78,12 +71,8 @@ function put_xml($code){
 }
 
 function exit_error($message, $code){
-    if($code != eOK){
-        fprintf(STDERR, $message."\n");
-        exit($code);
-    } else {
-        exit($code);
-    }
+    if($code != eOK) fprintf(STDERR, $message."\n");
+    exit($code);
 }
 
 function check_argument($expected, $token){
@@ -93,20 +82,8 @@ function check_argument($expected, $token){
     } else return eOK;
 }
 
-function transform_array($arr){
-    $result = array();
-    for($i = 0; $i < count($arr); $i++){
-        for($j = 0; $j < count($arr[$i]); $j++){
-            array_push($result, $arr[$i][$j]);
-        }
-    }
-
-    return $result;
-}
-
 function is_eof($token){
-    $token = transform_array($token);
-    return (in_array(tEOF, $token));
+    return ($token[0][0] == tEOF);
 }
 
 function process_special_char($string){
@@ -118,16 +95,19 @@ function process_special_char($string){
 
 function process_const($const){
     $result = array();
-    if(preg_match("~^int@~", $const)){
+    if(preg_match("~^int@[+|-]?\d+~", $const)){
         $result[0] = preg_replace("~^int@~", '', $const);
         $result[1] = "int";
     } elseif(preg_match("~^string@~", $const)){
+        if(preg_match("~\\\\(?!\d{3})~", $const)){
+            exit_error("Error: bad constant argument", eOther);
+        }
         $result[0] = preg_replace("~^string@~", '', $const);
         $result[1] = "string";
-    } elseif(preg_match("~^bool@~", $const)){
+    } elseif(preg_match("~^bool@(true|false)~", $const)){
         $result[0] = preg_replace("~^bool@~", '', $const);
         $result[1] = "bool";
-    } elseif(preg_match("~^nil@~", $const)){
+    } elseif(preg_match("~^nil@nil$~", $const)){
         $result[0] = preg_replace("~^nil@~", '', $const);
         $result[1] = "nil";
     } else exit_error("Error: wrong const type", eOther);
@@ -160,13 +140,27 @@ function parse(){
     global $token;
     global $XMLcode;
 
+    $shortopt = "";
+    $longopt = array("help");
+    $options = getopt($shortopt, $longopt);
+
+    if(array_key_exists("help", $options)) {
+        echo "parse.php help:\n";
+        echo "\tthis script reads the source code in IPPcode23 from standard input\n";
+        echo "\tchecks the code for lexical and syntactic correctness\n";
+        echo "\tand prints it to standard XML representation of the program according to the specification\n\n";
+        echo "usage:\n";
+        echo "\t--help\t\t\t\tprints this message\n";
+        echo "\tparse.php <input_file\t\tforward input from file\n";
+        exit(eOK);
+    }
+
     $XMLcode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"."\n";
 
     $token = get_token();
     check_header();
-    
+
     while(!is_eof($token = get_token())){
-        // print_r($token);
         process_token($token);
     }
 
@@ -194,7 +188,7 @@ function process_token($token){
     if($token[0][0] != tOpcode) exit_error("Error: wrong instruction", eOpcode);
 
     $inst = $instructions[$token[0][1]];
-
+    
     switch ($inst) {
         # 0 arguments instructions
         case 'CREATEFRAME':
@@ -247,11 +241,10 @@ function process_token($token){
             check_argument(1, $token);
             $cnt++;
             put_xml("\t<instruction order=\"$cnt\" opcode=\"".$inst."\">\n");
-            
             if($token[1][0] == tLabel){
                 $label = $token[1][1];
                 $argcnt++;
-                if(preg_match("~^[a-zA-Z_\-$&%*][a-zA-Z0-9_\-$&%*]*$~", $label)){
+                if(preg_match("~^[_a-zA-Z-$&%*!?][a-zA-Z0-9-$&%!?]*$~", $label)){
                     put_xml("\t\t<arg$argcnt type=\"label\">".$label."</arg$argcnt>\n");
                 } else {
                     exit_error("Error: wrong label name at $inst", eOther);
@@ -368,7 +361,7 @@ function process_token($token){
             }
             break;
         default:
-        exit_error("Error: wrong instruction at $inst", eOpcode);
+            exit_error("Error: wrong instruction at $inst", eOpcode);
             break;
     }
 
