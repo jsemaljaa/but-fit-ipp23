@@ -2,7 +2,6 @@ supplementary-tests/
 tests/
 alina.zip
 test.php
-src/parse_nastia.php
 is_it_ok.sh
 jexamxml.jar
 options

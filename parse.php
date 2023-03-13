@@ -6,7 +6,7 @@
  */
 
 
-require 'scanner.php';
+require 'src/scanner.php';
 ini_set('display_errors', 'stderr');
 $input = fopen('php://stdin', 'r');
 
