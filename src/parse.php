@@ -1,11 +1,16 @@
 <?php
+/**
+ * @author Alina Vinogradova (xvinog00@stud.fit.vutbr.cz)
+ * parse.php - syntax analysis and XML code generator for IPPcode23 language
+ * Project 1 for IPP university course 2022/23
+ */
 
-include 'scanner.php';
-
+ 
+require 'scanner.php';
+ini_set('display_errors', 'stderr');
 $input = fopen('php://stdin', 'r');
 
 # Parser errors
-const eParam = 10;        # Error - bad script parameter
 const eHeader = 21;       # Error - bad header
 const eOpcode = 22;       # Error - bad opcode
 const eOther = 23;        # Error - other lexical or syntax
@@ -203,7 +208,7 @@ function process_token($token){
         # 1 argument instructions
         case 'DEFVAR':  
         case 'POPS':
-            # argument is tVar
+            # Argument is tVar
             check_argument(1, $token);
             $cnt++;
             put_xml("\t<instruction order=\"$cnt\" opcode=\"".$inst."\">\n");

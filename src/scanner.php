@@ -1,10 +1,16 @@
 <?php
+/**
+ * @author Alina Vinogradova (xvinog00@stud.fit.vutbr.cz)
+ * scanner.php - lexical analysis for IPPcode23 language
+ * Project 1 for IPP university course 2022/23
+ */
+
 
 $header = 0;
-/*
- * Function to find index of a given word if it's present in instructions array
- * @param $word - given word to find
- * @return int - index of instruction in array, -1 otherwise
+/**
+ * @brief Function to get a specific index of opcode in $instructions array
+ * @param $word - given opcode
+ * @return $i as index in $instructions array, -1 if opcode doesn't exist
  */
 function get_instruction($word){
     global $instructions;
@@ -26,40 +32,13 @@ function get_token(){
     
     while(true){
         if(($line = fgets($input)) == false){
-            // fwrite(STDERR, "Scanner: reached EOF\n");
             array_push($result, array(tEOF));
             return $result;
         }
         if(preg_match("~^\s*#~", $line) or preg_match("~^\s*$~", $line)) continue;
 
-        // $words_n = explode(" ", $line); // Array ( [0] => "WRITE", [1] => "GF@counter")
-        // $words_n = array_map('trim', $words_n);
-
         $words = explode("#", trim($line, "\n"));
         $words = explode(" ", trim($words[0], " "));
-
-        // $w = str_split($words[1]);
-        
-        
-        // foreach ($w as $c) {
-        //     print(ord($c)." ");
-        // }
-        // echo "\n";
-
-        // foreach($words_n as $i => $word){
-        //     if(preg_match("~^\s*#~", $word)){
-        //         array_splice($words_n, $i);
-        //         break;
-        //     }
-        // }
-        
-        // echo "\t words:\n";
-        // print_r($words);
-
-        // echo "\t words_n:\n";
-        // print_r($words_n);
-
-        // print_r($words);
 
         foreach ($words as $i => $word) {
             $word = rtrim($word);
@@ -86,7 +65,6 @@ function get_token(){
                     array_push($result, array(tType, $word));
                 } 
                 else { // label or instruction
-                    // print($words[$i]." ");
                     if($i == 0) $inst = get_instruction(strtoupper($word));
                     else $inst = -1;
                     if($inst != -1){
@@ -97,7 +75,6 @@ function get_token(){
                 }   
             }
         }
-        
         return $result;
     }
 }
