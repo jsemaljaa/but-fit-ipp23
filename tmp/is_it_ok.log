@@ -1,0 +1,5 @@
+Archive:  xvinog00.zip
+  inflating: parse.php               
+  inflating: readme1.pdf             
+  inflating: scanner.php             
+./is_it_ok.sh: line 225: php8.1: command not found

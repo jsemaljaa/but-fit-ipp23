@@ -5,12 +5,13 @@
  * Project 1 for IPP university course 2022/23
  */
 
- 
+
 require 'scanner.php';
 ini_set('display_errors', 'stderr');
 $input = fopen('php://stdin', 'r');
 
 # Parser errors
+const eParameter = 10;    # Error - bad parameter
 const eHeader = 21;       # Error - bad header
 const eOpcode = 22;       # Error - bad opcode
 const eOther = 23;        # Error - other lexical or syntax
@@ -144,20 +145,28 @@ function get_symb($token, $type){
 function parse(){
     global $token;
     global $XMLcode;
+    global $argc;
+    global $argv;
 
-    $shortopt = "";
+    $shortopt = "h";
     $longopt = array("help");
     $options = getopt($shortopt, $longopt);
 
-    if(array_key_exists("help", $options)) {
-        echo "parse.php help:\n";
-        echo "\tthis script reads the source code in IPPcode23 from standard input\n";
-        echo "\tchecks the code for lexical and syntactic correctness\n";
-        echo "\tand prints it to standard XML representation of the program according to the specification\n\n";
-        echo "usage:\n";
-        echo "\t--help\t\t\t\tprints this message\n";
-        echo "\tparse.php <input_file\t\tforward input from file\n";
-        exit(eOK);
+    // print_r($options);
+    // print($argc."\n");
+    // print_r($argv);
+
+    if(array_key_exists("help", $options) || array_key_exists("h", $options)) {
+        if($argc == 2 && ($argv[1] == "-h" || $argv[1] == "--help")) {
+            echo "parse.php help:\n";
+            echo "\tthis script reads the source code in IPPcode23 from standard input\n";
+            echo "\tchecks the code for lexical and syntactic correctness\n";
+            echo "\tand prints it to standard XML representation of the program according to the specification\n\n";
+            echo "usage:\n";
+            echo "\t--help\t\t\t\tprints this message\n";
+            echo "\tparse.php <input_file\t\tforward input from file\n";
+            exit(eOK);
+        } else exit_error("Error: bad parameter given", eParameter);
     }
 
     $XMLcode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"."\n";
