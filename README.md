@@ -94,3 +94,10 @@ Output:
     </instruction>
 </program>
 ```
+## Final evaluation:
+- Lexical analysis: **79%**
+- Syntactic analysis: **100%**
+- Processing of instructions (including errors): **96%**
+- Processing of non-trivial programmes: **60%**
+### Total Score: 6.41/7.00 (**90%**)
++ 0.60/1.00 for implementation documentation
