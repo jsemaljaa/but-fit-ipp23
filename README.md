@@ -1,4 +1,4 @@
-# Code parser in IPPcode23 
+# Code parser for IPPcode23 
 
 ## Project 1 from [IPP](https://www.fit.vut.cz/study/course/IPP/.en) university course 2022/23
 
